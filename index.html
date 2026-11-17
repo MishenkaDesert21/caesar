@@ -3,225 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CAESAR · Шифр великого понтифика</title>
+<title>Caesar — шифр сдвига</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f4efe3;        /* мрамор */
-    --ink:#2a2118;          /* выгоревшая тушь */
-    --accent:#9b1c31;       /* имперский пурпур */
-    --gold:#a8842c;         /* золото лавров */
-    --gold-bg:#f3e6c4;
-    --ok:#3f6b3f;           /* лавр */
-    --ok-bg:#e4eeda;
-    --danger:#7c1220;
-    --danger-bg:#f5dcd8;
-    --muted:#7a6f5d;
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --text:#18181b;
+    --muted:#71717a;
+    --border:#e4e4e7;
+    --input:#fafafa;
+    --accent:#7c3aed;         /* императорский пурпур */
+    --accent-soft:#f3eeff;
+    --accent-grad:linear-gradient(135deg,#7c3aed,#4f46e5);
+    --ok:#16a34a;
+    --ok-bg:#ecfdf3;
+    --danger:#dc2626;
+    --danger-bg:#fef2f2;
+    --result-bg:#f3eeff;
+    --shadow:0 1px 2px rgba(24,24,27,.05),0 8px 24px rgba(24,24,27,.06);
+    --shadow-lg:0 4px 12px rgba(24,24,27,.08),0 16px 40px rgba(24,24,27,.10);
+    --radius:16px;
   }
   [data-theme="dark"]{
-    --paper:#1c1a15;        /* ночной Рим */
-    --ink:#e8dfc8;
-    --accent:#c94f63;
-    --gold:#d4af5a;
-    --gold-bg:#3a3categories01f;
-    --gold-bg:#3a301f;
-    --ok:#9cc08a;
-    --ok-bg:#22301e;
-    --danger:#e08a8a;
-    --danger-bg:#3a1518;
-    --muted:#9a8f79;
+    --bg:#0c0c0e;
+    --card:#17171a;
+    --text:#f4f4f5;
+    --muted:#9d9da8;
+    --border:#2a2a30;
+    --input:#101013;
+    --accent:#a78bfa;
+    --accent-soft:#241d3d;
+    --accent-grad:linear-gradient(135deg,#8b5cf6,#6366f1);
+    --ok:#4ade80;
+    --ok-bg:#10231a;
+    --danger:#f87171;
+    --danger-bg:#2b1212;
+    --result-bg:#1d1730;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.5),0 16px 40px rgba(0,0,0,.45);
   }
   *{box-sizing:border-box}
   body{
-    font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;
-    font-size:17px;
-    background:var(--paper);color:var(--ink);
-    margin:0;padding:32px 16px;min-height:100vh;
+    font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);
+    margin:0;padding:40px 16px;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
     transition:background .25s,color .25s;
   }
   .card{
-    max-width:680px;margin:0 auto;
-    background:var(--paper);
-    border:3px double var(--ink);
-    box-shadow:10px 10px 0 rgba(42,33,24,.25);
+    max-width:640px;margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    box-shadow:var(--shadow-lg);
+    padding:32px;
   }
-  header{
-    display:flex;justify-content:space-between;align-items:center;
-    border-bottom:3px double var(--ink);
-    padding:18px 22px;
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:44px;height:44px;border-radius:12px;
+    background:var(--accent-grad);
+    display:grid;place-items:center;font-size:22px;
+    box-shadow:0 4px 12px rgba(124,58,237,.35);
   }
-  h1{
-    margin:0;font-family:Cinzel,serif;font-weight:900;
-    font-size:22px;letter-spacing:.08em;text-transform:uppercase;
-  }
-  .spqr{
-    display:block;font-family:Cinzel,serif;font-size:10px;font-weight:400;
-    letter-spacing:.4em;color:var(--gold);margin-top:2px;
-  }
+  h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em}
+  .brand small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
   .theme-btn{
-    background:transparent;color:var(--ink);
-    border:2px solid var(--ink);
-    padding:6px 12px;cursor:pointer;font-size:16px;font-family:inherit;
+    background:var(--input);border:1px solid var(--border);color:var(--text);
+    border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:16px;
+    display:grid;place-items:center;transition:background .15s,transform .1s;
   }
-  .theme-btn:hover{background:var(--gold-bg)}
-  section{padding:20px 22px;border-bottom:3px double var(--ink)}
-  section:last-of-type{border-bottom:none}
-  .step-tag{
-    display:inline-block;font-family:Cinzel,serif;
-    color:var(--accent);font-weight:700;font-size:12px;
-    letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px;
+  .theme-btn:hover{background:var(--accent-soft)}
+  .theme-btn:active{transform:scale(.94)}
+  section{margin-bottom:28px}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+  .sec-num{
+    font-size:12px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);border-radius:999px;padding:2px 10px;
   }
-  h2{margin:0 0 12px;font-family:Cinzel,serif;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+  h2{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+  details{
+    margin-top:10px;border:1px solid var(--border);border-radius:var(--radius);
+    background:var(--input);overflow:hidden;
+  }
+  details summary{
+    cursor:pointer;font-weight:600;font-size:14px;padding:14px 18px;
+    list-style:none;display:flex;align-items:center;gap:8px;
+    transition:background .15s;
+  }
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"›";margin-left:auto;color:var(--muted);font-size:18px;transition:transform .2s}
+  details[open] summary::after{transform:rotate(90deg)}
+  details summary:hover{background:var(--accent-soft)}
+  details[open] summary{border-bottom:1px solid var(--border)}
+  details .content{padding:16px 18px;font-size:14px;line-height:1.65;color:var(--muted)}
+  details .content b,details .content code{color:var(--text)}
   label{
-    display:block;margin:12px 0 4px;font-family:Cinzel,serif;
-    font-size:11px;font-weight:700;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.12em;
+    display:block;margin:14px 0 6px;font-size:12px;font-weight:600;
+    color:var(--muted);letter-spacing:.02em;
   }
   textarea,input,select{
-    width:100%;padding:10px 12px;
-    border:2px solid var(--ink);border-radius:0;
-    font-size:16px;font-family:inherit;
-    background:transparent;color:var(--ink);
+    width:100%;padding:12px 14px;
+    border:1px solid var(--border);border-radius:12px;
+    font-size:15px;font-family:inherit;
+    background:var(--input);color:var(--text);
+    transition:border-color .15s,box-shadow .15s;
   }
-  textarea:focus,input:focus,select:focus{outline:2px solid var(--gold);outline-offset:2px}
-  textarea{resize:vertical;min-height:90px;font-style:italic}
-  textarea.drag-over{border-color:var(--gold);background:var(--gold-bg);font-style:normal}
-  .counter{font-size:13px;color:var(--muted);margin-top:4px;text-align:right;font-variant:small-caps}
-  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:end}
+  textarea::placeholder,input::placeholder{color:var(--muted);opacity:.7}
+  textarea:focus,input:focus,select:focus{
+    outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 15%,transparent);
+    background:var(--card);
+  }
+  textarea{resize:vertical;min-height:96px;line-height:1.6}
+  textarea.drag-over{border-color:var(--accent);background:var(--accent-soft)}
+  .counter{font-size:12px;color:var(--muted);margin-top:6px;text-align:right;font-variant-numeric:tabular-nums}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:end}
   .row>div{flex:1;min-width:140px}
-  .slider-wrap{display:flex;gap:10px;align-items:center}
+  .mode-toggle{
+    display:grid;grid-template-columns:1fr 1fr;gap:4px;
+    background:var(--input);border:1px solid var(--border);
+    border-radius:14px;padding:4px;
+  }
+  .mode-toggle button{
+    padding:10px;border:none;border-radius:10px;
+    background:transparent;color:var(--muted);
+    font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;
+    transition:background .2s,color .2s;
+  }
+  .mode-toggle button.active{
+    background:var(--accent-grad);color:#fff;
+    box-shadow:0 2px 8px rgba(124,58,237,.35);
+  }
+  [data-theme="dark"] .mode-toggle button.active{color:#0c0c0e}
+  .slider-wrap{display:flex;gap:14px;align-items:center}
   .slider-wrap input[type=range]{
-    flex:1;-webkit-appearance:none;appearance:none;height:4px;
-    background:var(--ink);padding:0;cursor:pointer;
+    flex:1;-webkit-appearance:none;appearance:none;height:6px;
+    background:var(--border);border-radius:999px;padding:0;cursor:pointer;border:none;
   }
   .slider-wrap input[type=range]::-webkit-slider-thumb{
     -webkit-appearance:none;width:22px;height:22px;
-    background:var(--gold);border:2px solid var(--ink);
-    border-radius:50%;cursor:grab;
+    background:var(--accent-grad);border:none;border-radius:50%;
+    cursor:grab;box-shadow:0 2px 6px rgba(124,58,237,.4);
+    transition:transform .1s;
   }
+  .slider-wrap input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
   .slider-wrap input[type=range]::-moz-range-thumb{
-    width:18px;height:18px;background:var(--gold);
-    border:2px solid var(--ink);border-radius:50%;cursor:grab;
+    width:22px;height:22px;background:var(--accent);
+    border:none;border-radius:50%;cursor:grab;
   }
   .slider-val{
-    min-width:64px;text-align:center;font-family:Cinzel,serif;
-    font-weight:700;font-size:18px;color:var(--accent);
+    min-width:72px;text-align:center;font-weight:700;font-size:16px;
+    color:var(--accent);background:var(--accent-soft);
+    border-radius:10px;padding:8px 0;font-variant-numeric:tabular-nums;
   }
-  .mode-toggle{display:flex;border:2px solid var(--ink)}
-  .mode-toggle button{
-    flex:1;padding:12px;border:none;background:transparent;color:var(--ink);
-    font-family:Cinzel,serif;font-weight:700;font-size:14px;
-    text-transform:uppercase;letter-spacing:.08em;cursor:pointer;
+  .checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .checks label{
+    display:inline-flex;align-items:center;gap:8px;margin:0;
+    font-size:13px;font-weight:500;color:var(--text);
+    border:1px solid var(--border);border-radius:999px;
+    padding:7px 14px;cursor:pointer;user-select:none;
+    transition:background .15s,border-color .15s;
+  }
+  .checks label:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
+  .checks input{width:auto;accent-color:var(--accent);margin:0}
+  .buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  button{
+    flex:1;min-width:100px;padding:12px 16px;border:none;
+    border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;
+    cursor:pointer;transition:transform .1s,filter .15s,background .15s;
+  }
+  button:active{transform:scale(.97)}
+  .btn-primary{
+    background:var(--accent-grad);color:#fff;flex:2;
+    box-shadow:0 4px 14px rgba(124,58,237,.35);
+  }
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn-sec{background:var(--input);border:1px solid var(--border);color:var(--text)}
+  .btn-sec:hover{background:var(--accent-soft)}
+  .btn-danger{background:var(--danger-bg);color:var(--danger)}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  .hint b{color:var(--text);font-weight:600}
+  #result{
+    margin-top:16px;padding:18px;min-height:64px;
+    background:var(--result-bg);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+    border-radius:var(--radius);
+    font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;
+  }
+  .table-wrap{overflow-x:auto;margin-top:6px}
+  table.map{border-collapse:separate;border-spacing:3px;font-size:13px;width:100%}
+  table.map td,table.map th{
+    padding:5px 6px;text-align:center;border-radius:6px;
+    background:var(--card);border:1px solid var(--border);
+    font-variant-numeric:tabular-nums;
+  }
+  table.map th{background:var(--accent-soft);color:var(--accent);font-weight:700}
+  .diff-box{
+    margin-top:8px;padding:12px;font-family:ui-monospace,Menlo,monospace;
+    font-size:13px;word-break:break-word;line-height:1.9;
+    background:var(--input);border:1px solid var(--border);border-radius:12px;
+  }
+  .diff-arrow{color:var(--muted);padding:0 3px}
+  .diff-new{color:var(--accent);font-weight:700}
+  .brute{margin-top:12px;display:grid;gap:8px}
+  .brute-row{
+    padding:10px 14px;border:1px solid var(--border);border-radius:12px;
+    font-family:ui-monospace,Menlo,monospace;font-size:13px;
+    cursor:pointer;display:flex;gap:12px;align-items:center;
+    background:var(--card);transition:background .15s,border-color .15s;
+  }
+  .brute-row:hover{background:var(--accent-soft)}
+  .brute-row.best{border:2px solid var(--ok);background:var(--ok-bg)}
+  .brute-shift{font-weight:700;color:var(--accent);min-width:56px;font-family:Inter,sans-serif}
+  .brute-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brute-score{font-size:11px;color:var(--muted)}
+  .history{margin-top:8px;display:grid;gap:8px}
+  .history-item{
+    padding:12px 14px;border:1px solid var(--border);border-radius:12px;
+    font-size:13px;cursor:pointer;display:flex;gap:10px;justify-content:space-between;
     transition:background .15s;
   }
-  .mode-toggle button.active{background:var(--accent);color:var(--paper)}
-  .mode-toggle button+button{border-left:2px solid var(--ink)}
-  .buttons{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-  button{
-    flex:1;min-width:110px;padding:12px;border:2px solid var(--ink);
-    font-family:Cinzel,serif;font-size:13px;font-weight:700;
-    cursor:pointer;text-transform:uppercase;letter-spacing:.06em;
-    background:transparent;color:var(--ink);
-    transition:background .15s,color .15s;
-  }
-  button:hover{background:var(--gold-bg)}
-  button:active{transform:translateY(2px)}
-  .btn-primary{background:var(--accent);color:var(--paper)}
-  .btn-primary:hover{background:var(--accent);color:#fff;filter:brightness(1.1)}
-  .btn-danger{background:var(--danger-bg);color:var(--danger)}
-  .hint{font-size:13px;color:var(--muted);margin-top:8px;font-style:italic}
-  #result{
-    margin-top:14px;padding:18px;min-height:60px;
-    border:2px solid var(--gold);background:var(--gold-bg);
-    font-size:18px;line-height:1.6;white-space:pre-wrap;word-break:break-word;
-    font-style:italic;
-  }
-  details{margin-top:12px;border:2px solid var(--ink)}
-  details summary{
-    cursor:pointer;font-family:Cinzel,serif;font-weight:700;font-size:13px;
-    text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;
-  }
-  details summary:hover{background:var(--gold-bg)}
-  details[open] summary{border-bottom:2px solid var(--ink);margin-bottom:10px}
-  details .content{padding:0 14px 14px;font-size:15px;line-height:1.65}
-  .table-wrap{overflow-x:auto;margin-top:8px}
-  table.map{border-collapse:collapse;font-size:13px}
-  table.map td,table.map th{border:1px solid var(--ink);padding:4px 8px;text-align:center}
-  table.map th{background:var(--gold-bg);font-weight:700;font-family:Cinzel,serif}
-  .diff-box{margin-top:10px;padding:10px;font-family:Georgia,serif;font-size:15px;word-break:break-word;line-height:1.8;border:2px solid var(--ink)}
-  .diff-arrow{color:var(--muted);padding:0 2px}
-  .diff-new{color:var(--accent);font-weight:700}
-  .brute{margin-top:10px;display:grid;gap:8px}
-  .brute-row{
-    padding:8px 10px;border:1px solid var(--ink);font-size:14px;
-    cursor:pointer;display:flex;gap:10px;align-items:center;
-  }
-  .brute-row:hover{background:var(--gold-bg)}
-  .brute-row.best{border:3px double var(--ok);background:var(--ok-bg)}
-  .brute-shift{font-family:Cinzel,serif;font-weight:700;color:var(--accent);min-width:56px}
-  .brute-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .brute-score{font-size:12px;color:var(--muted)}
-  .history{margin-top:10px;display:grid;gap:8px}
-  .history-item{
-    padding:10px;border:1px solid var(--ink);font-size:14px;cursor:pointer;
-    display:flex;gap:10px;justify-content:space-between;
-  }
-  .history-item:hover{background:var(--gold-bg)}
-  .history-item .meta{color:var(--muted);font-size:12px;white-space:nowrap;font-family:Cinzel,serif}
+  .history-item:hover{background:var(--accent-soft)}
+  .history-item .meta{color:var(--muted);font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .toast{
-    position:fixed;bottom:20px;left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:var(--ink);color:var(--paper);
-    padding:12px 22px;border:2px solid var(--gold);
-    font-family:Cinzel,serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(16px);
+    background:var(--text);color:var(--card);
+    padding:12px 20px;border-radius:999px;
+    font-size:13px;font-weight:600;
+    box-shadow:var(--shadow-lg);
     opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:1000;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
-  footer{
-    padding:14px 22px;font-family:Cinzel,serif;font-size:10px;
-    letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
-    border-top:3px double var(--ink);text-align:center;
-  }
-  .laurel{color:var(--gold)}
 </style>
 </head>
 <body>
 <div class="card">
   <header>
-    <div>
-      <h1>🏛️ Caesar</h1>
-      <span class="spqr">SENATVS · POPVLVSQVE · ROMANVS</span>
+    <div class="brand">
+      <div class="logo">🏛️</div>
+      <div>
+        <h1>Caesar</h1>
+        <small>шифр сдвига · spqr</small>
+      </div>
     </div>
-    <button class="theme-btn" id="themeBtn" title="Сменить тему (день Рима / ночь Рима)">🌙</button>
+    <button class="theme-btn" id="themeBtn" title="Сменить тему">🌙</button>
   </header>
 
   <details>
-    <summary>⚓ О шифре — из записок Гая Юлия</summary>
+    <summary>Как это работает</summary>
     <div class="content">
-      Светоний писал: в переписке с полководцами Цезарь заменял каждую букву
-      на стоящую через <b>k</b> позиций. Формула: <code>(индекс + сдвиг) mod длина_алфавита</code>.<br>
-      При сдвиге 3 (<b>III</b>): <code>а → г, б → д, …, я → а</code>.
-      Взламывается перебором за долю секунды — для тайных донесений не годится, для учёбы — самое то.
+      Каждая буква заменяется на букву через <b>k</b> позиций:
+      <code>(индекс + сдвиг) mod длина алфавита</code>. При сдвиге 3:
+      <code>а → г, б → д, …, я → а</code>. Перебором взламывается мгновенно —
+      учебный шифр, не для реальной защиты.
     </div>
   </details>
 
   <section>
-    <span class="step-tag">I — Денонс</span>
-    <h2>Что шифруем</h2>
-    <textarea id="text" placeholder="Начертите текст на табличке… (или перетащите .txt свиток)"></textarea>
+    <div class="sec-head"><span class="sec-num">1</span><h2>Текст</h2></div>
+    <textarea id="text" placeholder="Введите текст… (можно перетащить файл .txt)"></textarea>
     <div class="counter" id="counter">0 символов · 0 слов</div>
   </section>
 
   <section>
-    <span class="step-tag">II — Приказ</span>
-    <h2>Как шифруем</h2>
+    <div class="sec-head"><span class="sec-num">2</span><h2>Настройки</h2></div>
 
-    <label>Действие</label>
     <div class="mode-toggle">
-      <button id="modeEnc" class="active" type="button">🛡 Зашифровать</button>
-      <button id="modeDec" type="button">🗝 Расшифровать</button>
+      <button id="modeEnc" class="active" type="button">🔒 Зашифровать</button>
+      <button id="modeDec" type="button">🔓 Расшифровать</button>
     </div>
     <select id="mode" class="hidden">
       <option value="enc">Зашифровать</option>
@@ -230,11 +283,11 @@
 
     <div class="row">
       <div>
-        <label for="shift">Сдвиг (числом)</label>
+        <label for="shift">Сдвиг</label>
         <input id="shift" type="number" value="3" min="0" max="33">
       </div>
       <div style="flex:2">
-        <label for="shiftSlider">Сдвиг (как достойно легата)</label>
+        <label for="shiftSlider">Ползунок</label>
         <div class="slider-wrap">
           <input id="shiftSlider" type="range" min="0" max="33" value="3">
           <span class="slider-val" id="sliderVal">III</span>
@@ -243,7 +296,7 @@
     </div>
 
     <details>
-      <summary>⚙ Донесение писцам: алфавит</summary>
+      <summary>Алфавит и опции</summary>
       <div class="content">
         <label for="alphabetSel">Алфавит</label>
         <select id="alphabetSel">
@@ -256,71 +309,69 @@
           <label for="customAlpha">Свой алфавит</label>
           <input id="customAlpha" placeholder="например: абвгдежзийклмнопрстуфхцчшщъыьэюя">
         </div>
-        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><input type="checkbox" id="optYo" style="width:auto"> Включать «ё»</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><input type="checkbox" id="optDigits" style="width:auto"> Сдвигать цифры 0–9</label>
-        <label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="optKeepCase" checked style="width:auto"> Сохранять регистр</label>
+        <div class="checks">
+          <label><input type="checkbox" id="optYo"> Включать «ё»</label>
+          <label><input type="checkbox" id="optDigits"> Сдвигать цифры</label>
+          <label><input type="checkbox" id="optKeepCase" checked> Сохранять регистр</label>
+        </div>
       </div>
     </details>
   </section>
 
   <section>
-    <span class="step-tag">III — Решение Сената</span>
-    <h2>Что вышло</h2>
+    <div class="sec-head"><span class="sec-num">3</span><h2>Результат</h2></div>
     <div class="buttons">
-      <button class="btn-primary" id="go">⚔ Выполнить</button>
-      <button id="swap">↔ Поменять</button>
-      <button id="copy">✎ Копировать</button>
-      <button id="download">📜 Скачать .txt</button>
-      <button class="btn-danger" id="clear">✕ Стереть</button>
+      <button class="btn-primary" id="go">Выполнить</button>
+      <button class="btn-sec" id="swap">↔ Поменять</button>
+      <button class="btn-sec" id="copy">Копировать</button>
+      <button class="btn-sec" id="download">Скачать .txt</button>
+      <button class="btn-danger" id="clear">Очистить</button>
     </div>
-    <div class="hint">Ctrl+Enter — выполнить · результат пересчитывается сам, как ходы в сенате</div>
+    <div class="hint"><b>Ctrl+Enter</b> — выполнить · результат пересчитывается автоматически</div>
     <div id="result">Здесь появится результат</div>
 
     <details>
-      <summary>👁 Что изменилось (было → стало)</summary>
+      <summary>Что изменилось</summary>
       <div class="diff-box" id="diffBox">—</div>
     </details>
 
     <details>
-      <summary>🔤 Каменные таблицы замены</summary>
+      <summary>Таблица замены</summary>
       <div class="table-wrap" id="mapWrap">—</div>
     </details>
   </section>
 
   <section>
-    <span class="step-tag">Инструменты легата</span>
-    <h2>Взлом, анналы, настройки</h2>
+    <div class="sec-head"><span class="sec-num">＋</span><h2>Инструменты</h2></div>
 
     <details>
-      <summary>🔓 Разгадать перебором (как Варрон)</summary>
+      <summary>Взломать перебором</summary>
       <div class="content">
-        <button class="btn-primary" id="bruteBtn" style="width:100%;margin-top:6px">Взломать текущий текст</button>
+        <button class="btn-primary" id="bruteBtn" style="width:100%;margin-top:4px">Подобрать сдвиг</button>
         <div class="brute" id="bruteList"></div>
         <div class="hint" id="bruteHint"></div>
       </div>
     </details>
 
     <details>
-      <summary>🕘 Анналы операций</summary>
+      <summary>История</summary>
       <div class="content">
         <div class="history" id="historyList"></div>
-        <button id="clearHistory" style="width:100%;margin-top:10px">Сжечь анналы</button>
+        <button class="btn-sec" id="clearHistory" style="width:100%;margin-top:10px">Очистить историю</button>
       </div>
     </details>
 
     <details>
-      <summary>💾 Экспорт / импорт настроек</summary>
+      <summary>Экспорт / импорт настроек</summary>
       <div class="content">
-        <textarea id="settingsJson" style="min-height:70px;font-family:Georgia,serif;font-size:13px" readonly></textarea>
+        <textarea id="settingsJson" style="min-height:72px;font-family:ui-monospace,Menlo,monospace;font-size:12px" readonly></textarea>
         <div class="buttons" style="margin-top:8px">
-          <button id="exportSettings">Экспорт</button>
-          <button id="importSettings">Импорт</button>
+          <button class="btn-sec" id="exportSettings">Экспорт</button>
+          <button class="btn-sec" id="importSettings">Импорт</button>
         </div>
       </div>
     </details>
   </section>
-
-  <footer>SPQR <span class="laurel">🌿</span> Шифр Цезаря · учебный инструмент, не для тайной переписки</footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -431,12 +482,12 @@ function pushHistory(item){
 }
 function renderHistory(){
   const list=$('historyList');const history=loadHistory();
-  if(!history.length){list.innerHTML='<div class="hint">Анналы пусты</div>';return}
+  if(!history.length){list.innerHTML='<div class="hint" style="text-align:center">Пока пусто</div>';return}
   list.innerHTML='';
   history.forEach(item=>{
     const div=document.createElement('div');
     div.className='history-item';
-    div.innerHTML=`<span>${escapeHtml(item.preview)}</span><span class="meta">${item.mode==='enc'?'🛡':'🗝'} ${toRoman(item.shift)} · ${item.time}</span>`;
+    div.innerHTML=`<span>${escapeHtml(item.preview)}</span><span class="meta">${item.mode==='enc'?'🔒':'🔓'} ${toRoman(item.shift)} · ${item.time}</span>`;
     div.title='Кликните, чтобы загрузить';
     div.onclick=()=>{
       $('text').value=item.text;setMode(item.mode);$('shift').value=item.shift;
@@ -472,7 +523,7 @@ function run(){
   const k=Number.isFinite(kRaw)?kRaw:0;
   const opts=getOptions();
   if(!text.trim()){
-    renderResult('⚠ Введите текст, понтифик ждёт');
+    renderResult('Введите текст — и результат появится здесь');
     $('diffBox').textContent='—';
     $('mapWrap').textContent='—';
     persist();return;
@@ -535,36 +586,36 @@ $('shift').addEventListener('input',()=>{syncSliderFromInput();run()});
 $('go').onclick=run;
 $('swap').onclick=()=>{
   const out=$('result').textContent;
-  if(!out||out==='Здесь появится результат'||out.startsWith('⚠')){toast('Нет результата для обмена');return}
+  if(!out||out==='Здесь появится результат'||out.startsWith('Введите текст')){toast('Нет результата для обмена');return}
   $('text').value=out;
   setMode($('mode').value==='enc'?'dec':'enc');
   updateCounter();run();toast('Текст и режим поменяны');
 };
 $('copy').onclick=async()=>{
   const out=$('result').textContent;
-  if(!out||out.startsWith('⚠'))return;
+  if(!out||out.startsWith('Введите текст'))return;
   try{
     await navigator.clipboard.writeText(out);
-    toast('Скрипт переписан писцом');
+    toast('Скопировано в буфер');
   }catch{
     try{
       const tmp=document.createElement('textarea');
       tmp.value=out;tmp.style.position='fixed';tmp.style.opacity='0';
       document.body.appendChild(tmp);tmp.select();
       document.execCommand('copy');tmp.remove();
-      toast('Скрипт переписан писцом');
+      toast('Скопировано в буфер');
     }catch{toast('Не удалось скопировать')}
   }
 };
 $('download').onclick=()=>{
   const out=$('result').textContent;
-  if(!out||out.startsWith('⚠')){toast('Нет результата');return}
+  if(!out||out.startsWith('Введите текст')){toast('Нет результата');return}
   const blob=new Blob([out],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a');
   const url=URL.createObjectURL(blob);
   a.href=url;a.download='caesar-result.txt';a.click();
   setTimeout(()=>URL.revokeObjectURL(url),100);
-  toast('Свиток скачан');
+  toast('Файл скачан');
 };
 $('clear').onclick=()=>{
   $('text').value='';renderResult('Здесь появится результат');
@@ -595,9 +646,9 @@ $('bruteBtn').onclick=()=>{
     };
     list.appendChild(row);
   });
-  $('bruteHint').textContent='Лучший вариант отмечен двойной рамкой. Всего сдвигов: '+toRoman(variants.length)+'.';
+  $('bruteHint').textContent=`Лучший вариант выделен зелёным. Всего ${variants.length} сдвигов.`;
 };
-$('clearHistory').onclick=()=>{saveHistory([]);renderHistory();toast('Анналы сожжены')};
+$('clearHistory').onclick=()=>{saveHistory([]);renderHistory();toast('История очищена')};
 
 const ta=$('text');
 ['dragenter','dragover'].forEach(ev=>ta.addEventListener(ev,e=>{e.preventDefault();ta.classList.add('drag-over')}));
@@ -605,7 +656,7 @@ const ta=$('text');
 ta.addEventListener('drop',async e=>{
   const f=e.dataTransfer.files[0];if(!f)return;
   if(!/\.(txt|md|csv)$/i.test(f.name)){toast('Только .txt/.md/.csv');return}
-  $('text').value=await f.text();updateCounter();run();toast('Свиток доставлен');
+  $('text').value=await f.text();updateCounter();run();toast('Файл загружен');
 });
 
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')run()});
