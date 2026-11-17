@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Цезарь</title></head>
+<body>
+  <select id="mode">
+    <option value="enc">Шифровать</option>
+    <option value="dec">Дешифровать</option>
+  </select>
+  <input id="text" placeholder="Текст">
+  <input id="shift" type="number" value="3">
+  <button id="go">OK</button>
+  <p id="result"></p>
+
+<script>
+  const ru = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'.split('');
+  const en = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+  function caesar(t, k) {
+    let r = '';
+    for (const c of t) {
+      const l = c.toLowerCase();
+      const a = ru.includes(l) ? ru : en.includes(l) ? en : null;
+      if (!a) { r += c; continue; }
+      let n = a[(a.indexOf(l) + k) % a.length];
+      if (c === c.toUpperCase() && c !== c.toLowerCase()) n = n.toUpperCase();
+      r += n;
+    }
+    return r;
+  }
+
+  document.getElementById('go').onclick = () => {
+    const m = document.getElementById('mode').value;
+    const t = document.getElementById('text').value;
+    const k = parseInt(document.getElementById('shift').value) || 0;
+    document.getElementById('result').textContent = caesar(t, m === 'enc' ? k : -k);
+  };
+</script>
+</body>
+</html>
