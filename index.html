@@ -2,168 +2,741 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Шифр Цезаря</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шифр Цезаря — полная версия</title>
 <style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc;
+    --card: #fff; --text: #1e293b; --muted: #64748b;
+    --border: #cbd5e1; --input-bg: #f8fafc;
+    --accent: #4a6cf7; --accent-h: #3a56d4;
+    --danger: #b91c1c; --danger-bg: #fee2e2;
+    --ok: #15803d; --ok-bg: #dcfce7;
+    --result-bg: #f5f7ff; --hint: #94a3b8;
+  }
+  [data-theme="dark"] {
+    --bg1: #0f172a; --bg2: #1e293b;
+    --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8;
+    --border: #334155; --input-bg: #0f172a;
+    --accent: #6366f1; --accent-h: #818cf8;
+    --danger: #fca5a5; --danger-bg: #451a1a;
+    --ok: #86efac; --ok-bg: #14532d;
+    --result-bg: #0f172a; --hint: #64748b;
+  }
   * { box-sizing: border-box; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text);
     display: flex; justify-content: center;
-    padding: 40px 16px; margin: 0; min-height: 100vh;
+    padding: 32px 16px; margin: 0; min-height: 100vh;
+    transition: background .3s, color .3s;
   }
   .card {
-    background: #fff; border-radius: 14px;
+    background: var(--card); border-radius: 14px;
     box-shadow: 0 8px 30px rgba(30,50,120,.12);
-    padding: 28px; width: 100%; max-width: 560px;
+    padding: 24px; width: 100%; max-width: 640px;
+    transition: background .3s;
   }
-  h1 { margin: 0 0 20px; font-size: 22px; text-align: center; color: #1e293b; }
-  label { display: block; margin: 14px 0 6px; font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .04em; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  h1 { margin: 0; font-size: 21px; }
+  .theme-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 6px 10px;
+    cursor: pointer; font-size: 16px;
+  }
+  label { display: block; margin: 14px 0 6px; font-size: 12px; font-weight: 600;
+          color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
   textarea, input, select {
-    width: 100%; padding: 11px 12px;
-    border: 1px solid #cbd5e1; border-radius: 9px;
-    font-size: 15px; font-family: inherit; background: #f8fafc;
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 9px;
+    font-size: 15px; font-family: inherit;
+    background: var(--input-bg); color: var(--text);
     transition: border-color .15s, box-shadow .15s;
   }
   textarea:focus, input:focus, select:focus {
-    outline: none; border-color: #4a6cf7; background: #fff;
+    outline: none; border-color: var(--accent); background: var(--card);
     box-shadow: 0 0 0 3px rgba(74,108,247,.15);
   }
   textarea { resize: vertical; min-height: 90px; }
-  .row { display: flex; gap: 12px; }
-  .row > div { flex: 1; }
-  .buttons { display: flex; gap: 10px; margin-top: 18px; }
+  textarea.drag-over { border-color: var(--accent); background: var(--result-bg); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 140px; }
+  .buttons { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
   button {
-    flex: 1; padding: 12px; border: none; border-radius: 9px;
-    font-size: 15px; font-weight: 600; cursor: pointer;
+    flex: 1; min-width: 110px; padding: 11px; border: none; border-radius: 9px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
     transition: transform .08s, background .15s;
   }
   button:active { transform: scale(.98); }
-  #go { background: #4a6cf7; color: #fff; }
-  #go:hover { background: #3a56d4; }
-  #copy { background: #e2e8f0; color: #334155; }
-  #copy:hover { background: #cbd5e1; }
-  #clear { background: #fee2e2; color: #b91c1c; }
-  #clear:hover { background: #fecaca; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-h); }
+  .btn-sec { background: var(--border); color: var(--text); }
+  .btn-sec:hover { filter: brightness(.95); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); }
   #result {
-    margin-top: 18px; padding: 14px;
-    background: #f5f7ff; border: 1px dashed #4a6cf7;
+    margin-top: 16px; padding: 14px;
+    background: var(--result-bg); border: 1px dashed var(--accent);
     border-radius: 9px; min-height: 48px;
     word-break: break-word; font-size: 16px; line-height: 1.5;
-    color: #1e293b; white-space: pre-wrap;
+    white-space: pre-wrap;
   }
-  .hint { font-size: 12px; color: #94a3b8; margin-top: 6px; text-align: right; }
+  .hint { font-size: 12px; color: var(--hint); margin-top: 6px; text-align: right; }
+  .counter { font-size: 12px; color: var(--hint); margin-top: 4px; text-align: right; }
+
+  /* Слайдер */
+  .slider-wrap { display: flex; gap: 10px; align-items: center; }
+  .slider-wrap input[type=range] { flex: 1; }
+  .slider-val { min-width: 42px; text-align: center; font-weight: 700; color: var(--accent); }
+
+  /* Чекбоксы */
+  .checks { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
+  .checks label {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin: 0; font-size: 13px; color: var(--text);
+    text-transform: none; letter-spacing: 0; font-weight: 500; cursor: pointer;
+  }
+  .checks input[type=checkbox] { width: auto; }
+
+  /* Раскрывающиеся блоки */
+  details {
+    margin-top: 14px; border: 1px solid var(--border);
+    border-radius: 9px; padding: 10px 14px; background: var(--input-bg);
+  }
+  details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
+  details[open] summary { margin-bottom: 10px; }
+  details .content { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  /* Таблица замены */
+  .table-wrap { overflow-x: auto; margin-top: 8px; }
+  table.map { border-collapse: collapse; font-size: 13px; }
+  table.map td, table.map th {
+    border: 1px solid var(--border); padding: 4px 8px; text-align: center;
+    font-family: monospace;
+  }
+  table.map th { background: var(--result-bg); font-weight: 700; }
+
+  /* Подсветка изменённых букв */
+  .diff-box { margin-top: 10px; padding: 10px; background: var(--input-bg);
+              border-radius: 8px; font-family: monospace; font-size: 14px;
+              word-break: break-word; line-height: 1.6; }
+  .diff-arrow { color: var(--muted); padding: 0 2px; }
+  .diff-new { color: var(--accent); font-weight: 700; }
+
+  /* Brute-force */
+  .brute { margin-top: 10px; display: grid; gap: 6px; }
+  .brute-row {
+    padding: 6px 10px; border-radius: 6px; background: var(--input-bg);
+    font-family: monospace; font-size: 13px; cursor: pointer;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .brute-row:hover { background: var(--result-bg); }
+  .brute-row.best { border: 2px solid var(--ok); background: var(--ok-bg); }
+  .brute-shift { font-weight: 700; color: var(--accent); min-width: 42px; }
+  .brute-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .brute-score { font-size: 11px; color: var(--muted); }
+
+  /* История */
+  .history { margin-top: 8px; display: grid; gap: 6px; }
+  .history-item {
+    padding: 8px 10px; border-radius: 6px; background: var(--input-bg);
+    font-size: 13px; cursor: pointer; display: flex; gap: 10px;
+    justify-content: space-between;
+  }
+  .history-item:hover { background: var(--result-bg); }
+  .history-item .meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 8px;
+    font-size: 14px; opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s; z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
-  <div class="card">
+<div class="card">
+  <header>
     <h1>🔐 Шифр Цезаря</h1>
+    <button class="theme-btn" id="themeBtn" title="Сменить тему">🌙</button>
+  </header>
 
-    <label for="mode">Режим</label>
-    <select id="mode">
-      <option value="enc">Зашифровать</option>
-      <option value="dec">Расшифровать</option>
-    </select>
+  <!-- Справка -->
+  <details id="helpBlock">
+    <summary>Что такое шифр Цезаря?</summary>
+    <div class="content">
+      Шифр Цезаря — это шифр сдвига: каждая буква заменяется на букву,
+      стоящую через <b>k</b> позиций в алфавите. Формула:
+      <code>(индекс + сдвиг) mod длина_алфавита</code>.<br>
+      Например, при сдвиге 3: <code>а → г, б → д, в → е, …, я → а</code>.<br>
+      Шифр легко взломать перебором (всего 33 варианта для русского) или
+      частотным анализом — поэтому он учебный, а не для реальной защиты.
+    </div>
+  </details>
 
-    <label for="text">Текст</label>
-    <textarea id="text" placeholder="Введите текст..."></textarea>
+  <!-- Режим -->
+  <label for="mode">Режим</label>
+  <select id="mode">
+    <option value="enc">Зашифровать</option>
+    <option value="dec">Расшифровать</option>
+  </select>
 
-    <div class="row">
-      <div>
-        <label for="shift">Сдвиг</label>
-        <input id="shift" type="number" value="3" min="0">
+  <!-- Текст -->
+  <label for="text">Текст <span style="color:var(--hint);font-weight:400">(можно перетащить .txt)</span></label>
+  <textarea id="text" placeholder="Введите текст..."></textarea>
+  <div class="counter" id="counter">0 символов · 0 слов</div>
+
+  <!-- Сдвиг + слайдер -->
+  <div class="row">
+    <div>
+      <label for="shift">Сдвиг</label>
+      <input id="shift" type="number" value="3" min="0">
+    </div>
+    <div style="flex:2">
+      <label for="shiftSlider">Ползунок сдвига</label>
+      <div class="slider-wrap">
+        <input id="shiftSlider" type="range" min="0" max="32" value="3">
+        <span class="slider-val" id="sliderVal">3</span>
       </div>
     </div>
-
-    <div class="buttons">
-      <button id="go">Выполнить</button>
-      <button id="copy">Копировать</button>
-      <button id="clear">Очистить</button>
-    </div>
-
-    <div id="result">Здесь появится результат</div>
-    <div class="hint">Ctrl+Enter — выполнить</div>
   </div>
 
+  <!-- Настройки алфавита -->
+  <details>
+    <summary>Настройки алфавита</summary>
+    <div class="content">
+      <label for="alphabetSel">Алфавит</label>
+      <select id="alphabetSel">
+        <option value="auto">Авто (русский + английский)</option>
+        <option value="ru">Только русский</option>
+        <option value="en">Только английский</option>
+        <option value="custom">Свой алфавит</option>
+      </select>
+      <div id="customAlphaWrap" class="hidden">
+        <label for="customAlpha">Свой алфавит</label>
+        <input id="customAlpha" placeholder="например: абвгдежзийклмнопрстуфхцчшщъыьэюя">
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="optYo"> Включать «ё»</label>
+        <label><input type="checkbox" id="optDigits"> Сдвигать цифры 0–9</label>
+        <label><input type="checkbox" id="optKeepCase" checked> Сохранять регистр</label>
+      </div>
+    </div>
+  </details>
+
+  <!-- Кнопки -->
+  <div class="buttons">
+    <button class="btn-primary" id="go">Выполнить</button>
+    <button class="btn-sec" id="swap" title="Поменять местами текст и результат">↔ Поменять</button>
+    <button class="btn-sec" id="copy">Копировать</button>
+    <button class="btn-sec" id="download">Скачать .txt</button>
+    <button class="btn-danger" id="clear">Очистить</button>
+  </div>
+  <div class="hint">Ctrl+Enter — выполнить · результат пересчитывается автоматически</div>
+
+  <!-- Результат -->
+  <div id="result">Здесь появится результат</div>
+
+  <!-- Подсветка изменённых букв -->
+  <details id="diffBlock">
+    <summary>Показать изменения (было → стало)</summary>
+    <div class="diff-box" id="diffBox"></div>
+  </details>
+
+  <!-- Таблица замены -->
+  <details id="mapBlock">
+    <summary>Таблица замены</summary>
+    <div class="table-wrap" id="mapWrap"></div>
+  </details>
+
+  <!-- Brute-force -->
+  <details id="bruteBlock">
+    <summary>Взломать (перебор всех сдвигов)</summary>
+    <div class="content">
+      <button class="btn-primary" id="bruteBtn" style="width:100%;margin-top:6px">
+        🔓 Взломать текущий текст
+      </button>
+      <div class="brute" id="bruteList"></div>
+      <div class="hint" id="bruteHint"></div>
+    </div>
+  </details>
+
+  <!-- История -->
+  <details id="historyBlock">
+    <summary>История операций</summary>
+    <div class="history" id="historyList"></div>
+    <button class="btn-sec" id="clearHistory" style="width:100%;margin-top:8px">Очистить историю</button>
+  </details>
+
+  <!-- Экспорт/импорт настроек -->
+  <details>
+    <summary>Экспорт / импорт настроек</summary>
+    <div class="content">
+      <textarea id="settingsJson" style="min-height:70px;font-family:monospace;font-size:12px" readonly></textarea>
+      <div class="buttons" style="margin-top:8px">
+        <button class="btn-sec" id="exportSettings">Экспорт</button>
+        <button class="btn-sec" id="importSettings">Импорт</button>
+      </div>
+    </div>
+  </details>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-  // Русский алфавит БЕЗ «ё» — классический вариант Цезаря.
-  // «ё» приравнивается к «е» при шифровании.
-  const abcRu = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'.split('');
-  const abcEn = 'abcdefghijklmnopqrstuvwxyz'.split('');
+"use strict";
 
-  const $ = id => document.getElementById(id);
+/* ======================= Константы и утилиты ======================= */
+const ABC_RU_BASE = 'абвгдежзийклмнопрстуфхцчшщъыьэюя';
+const ABC_RU_YO   = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+const ABC_EN      = 'abcdefghijklmnopqrstuvwxyz';
+const ABC_DIGITS  = '0123456789';
+const LS_KEY = 'caesar_full_v1';
 
-  function normalizeShift(k, len) {
-    // корректный математический модуль для любых k (в т.ч. отрицательных)
-    return ((k % len) + len) % len;
+const $ = id => document.getElementById(id);
+const mod = (n, m) => ((n % m) + m) % m;
+
+function toast(msg, ms = 1600) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+/* ======================= Настройки ======================= */
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveSettings(s) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
+}
+
+const settings = {
+  theme: 'light',
+  mode: 'enc',
+  text: '',
+  shift: 3,
+  alphabetSel: 'auto',
+  customAlpha: '',
+  optYo: false,
+  optDigits: false,
+  optKeepCase: true,
+  ...loadSettings()
+};
+
+/* ======================= Построение алфавитов ======================= */
+function buildAlphabets(opts) {
+  const list = [];
+  const sel = opts.alphabetSel;
+
+  if (sel === 'auto' || sel === 'ru') {
+    list.push((opts.optYo ? ABC_RU_YO : ABC_RU_BASE).split(''));
+  }
+  if (sel === 'auto' || sel === 'en') {
+    list.push(ABC_EN.split(''));
+  }
+  if (sel === 'custom' && opts.customAlpha.trim()) {
+    // уникальные символы в порядке ввода
+    const seen = new Set();
+    const chars = [];
+    for (const ch of opts.customAlpha) {
+      if (!seen.has(ch) && !/\s/.test(ch)) { seen.add(ch); chars.push(ch); }
+    }
+    if (chars.length > 1) list.push(chars);
+  }
+  return list;
+}
+
+/* ======================= Основной алгоритм ======================= */
+function caesar(text, k, opts) {
+  const alphabets = buildAlphabets(opts);
+  if (!alphabets.length) return text;
+
+  let result = '';
+  for (const rawCh of text) {
+    // «ё» → «е», если опция выключена (в классическом алфавите)
+    let ch = rawCh;
+    if (!opts.optYo) {
+      if (ch === 'ё') ch = 'е';
+      else if (ch === 'Ё') ch = 'Е';
+    }
+
+    const lower = ch.toLowerCase();
+    let alphabet = null;
+    for (const a of alphabets) {
+      if (a.includes(lower)) { alphabet = a; break; }
+    }
+
+    // цифры
+    if (!alphabet && opts.optDigits && /\d/.test(ch)) {
+      alphabet = ABC_DIGITS.split('');
+    }
+
+    if (!alphabet) { result += ch; continue; }
+
+    const idx = alphabet.indexOf(lower);
+    const len = alphabet.length;
+    const newIdx = mod(idx + k, len);
+    let newCh = alphabet[newIdx];
+
+    if (opts.optKeepCase && ch !== lower) newCh = newCh.toUpperCase();
+    result += newCh;
+  }
+  return result;
+}
+
+/* ======================= Подсчёт статистики для brute-force ======================= */
+// Частоты букв русского и английского (приближённо, в сумме 1)
+const FREQ_RU = { о:.1097,е:.0845,а:.0801,и:.0735,н:.067,т:.0626,с:.0547,р:.0473,в:.0454,л:.044,к:.0349,м:.0321,д:.0298,п:.0281,у:.0262,я:.0201,ы:.019,ь:.0174,г:.017,з:.0165,б:.0159,ч:.0144,й:.0121,х:.0097,ж:.0094,ш:.0073,ю:.0064,ц:.0048,щ:.0036,э:.0032,ф:.0026,ъ:.0004,ё:.0004 };
+const FREQ_EN = { e:.12702,t:.09056,a:.08167,o:.07507,i:.06966,n:.06749,s:.06327,h:.06094,r:.05987,d:.04253,l:.04025,c:.02782,u:.02758,m:.02406,w:.0236,f:.02228,g:.02015,y:.01974,p:.01929,b:.01492,v:.00978,k:.00772,j:.00153,x:.0015,q:.00095,z:.00074 };
+
+function scoreText(text) {
+  let score = 0, letters = 0;
+  const lower = text.toLowerCase();
+  for (const ch of lower) {
+    if (FREQ_RU[ch]) { score += Math.log(FREQ_RU[ch]); letters++; }
+    else if (FREQ_EN[ch]) { score += Math.log(FREQ_EN[ch]); letters++; }
+  }
+  return letters ? score / letters : -Infinity;
+}
+
+/* ======================= UI: рендер ======================= */
+function renderResult(out) {
+  $('result').textContent = out;
+}
+
+function renderDiff(original, transformed, opts) {
+  const box = $('diffBox');
+  if (!original || !transformed) { box.textContent = '—'; return; }
+  let html = '';
+  const n = Math.min(original.length, transformed.length);
+  for (let i = 0; i < n; i++) {
+    const a = original[i], b = transformed[i];
+    const aLower = a.toLowerCase(), bLower = b.toLowerCase();
+    const isLetter = /[a-zа-яё0-9]/i.test(aLower);
+    if (isLetter && aLower !== bLower) {
+      html += `<span title="${a} → ${b}">${escapeHtml(a)}<span class="diff-arrow">→</span><span class="diff-new">${escapeHtml(b)}</span></span>`;
+    } else {
+      html += escapeHtml(a);
+    }
+  }
+  if (transformed.length > original.length) {
+    html += escapeHtml(transformed.slice(original.length));
+  }
+  box.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderMap(opts, k) {
+  const wrap = $('mapWrap');
+  const alphabets = buildAlphabets(opts);
+  if (!alphabets.length) { wrap.textContent = 'Алфавит не задан'; return; }
+
+  let html = '';
+  for (const alphabet of alphabets) {
+    const len = alphabet.length;
+    html += '<table class="map"><tr><th>Исх.</th>';
+    for (const ch of alphabet) html += `<th>${escapeHtml(ch)}</th>`;
+    html += '</tr><tr><th>Рез.</th>';
+    for (let i = 0; i < len; i++) {
+      let target = alphabet[mod(i + k, len)];
+      html += `<td>${escapeHtml(target)}</td>`;
+    }
+    html += '</tr></table><br>';
+  }
+  wrap.innerHTML = html;
+}
+
+function renderHistory() {
+  const list = $('historyList');
+  const history = loadHistory();
+  if (!history.length) { list.innerHTML = '<div class="hint" style="text-align:center">Пока пусто</div>'; return; }
+  list.innerHTML = '';
+  history.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `<span>${escapeHtml(item.preview)}</span>
+                     <span class="meta">${item.mode === 'enc' ? '🔒' : '🔓'} k=${item.shift} · ${item.time}</span>`;
+    div.title = 'Кликните, чтобы загрузить';
+    div.onclick = () => {
+      $('text').value = item.text;
+      $('mode').value = item.mode;
+      $('shift').value = item.shift;
+      $('shiftSlider').value = item.shift;
+      syncSliderLabel();
+      updateCounter();
+      run();
+    };
+    list.appendChild(div);
+  });
+}
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY + '_hist') || '[]'); }
+  catch { return []; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem(LS_KEY + '_hist', JSON.stringify(h)); } catch {}
+}
+function pushHistory(item) {
+  const h = loadHistory();
+  // не дублируем подряд одинаковое
+  if (h[0] && h[0].text === item.text && h[0].mode === item.mode && h[0].shift === item.shift) return;
+  h.unshift(item);
+  saveHistory(h.slice(0, 10));
+  renderHistory();
+}
+
+/* ======================= UI: счётчик ======================= */
+function updateCounter() {
+  const t = $('text').value;
+  const chars = t.length;
+  const words = t.trim() ? t.trim().split(/\s+/).length : 0;
+  $('counter').textContent = `${chars} символов · ${words} слов`;
+}
+
+/* ======================= UI: слайдер ======================= */
+function syncSliderLabel() {
+  const v = $('shift').value || '0';
+  $('sliderVal').textContent = v;
+}
+function syncSliderFromInput() {
+  const v = parseInt($('shift').value, 10) || 0;
+  $('shiftSlider').value = Math.min(32, Math.max(0, v));
+  syncSliderLabel();
+}
+
+/* ======================= Основной запуск ======================= */
+function getOptions() {
+  return {
+    alphabetSel: $('alphabetSel').value,
+    customAlpha: $('customAlpha').value,
+    optYo: $('optYo').checked,
+    optDigits: $('optDigits').checked,
+    optKeepCase: $('optKeepCase').checked
+  };
+}
+
+function run() {
+  const mode = $('mode').value;
+  const text = $('text').value;
+  const kRaw = parseInt($('shift').value, 10);
+  const k = Number.isFinite(kRaw) ? kRaw : 0;
+  const opts = getOptions();
+
+  if (!text.trim()) {
+    renderResult('⚠️ Введите текст');
+    $('diffBox').textContent = '—';
+    $('mapWrap').textContent = '—';
+    persist();
+    return;
   }
 
-  function caesar(text, k) {
-    let result = '';
-    for (const ch of text) {
-      // «ё» / «Ё» → «е» / «Е», чтобы не ломать алфавит
-      const normalized = ch === 'ё' ? 'е' : ch === 'Ё' ? 'Е' : ch;
-      const lower = normalized.toLowerCase();
+  const shift = mode === 'enc' ? k : -k;
+  const out = caesar(text, shift, opts);
+  renderResult(out);
+  renderDiff(text, out, opts);
+  renderMap(opts, mod(shift, 33));
 
-      let alphabet = null;
-      if (abcRu.includes(lower)) alphabet = abcRu;
-      else if (abcEn.includes(lower)) alphabet = abcEn;
-      else { result += normalized; continue; }
+  // Автоистория (с небольшой задержкой, чтобы не дёргать при каждом нажатии)
+  clearTimeout(run._tid);
+  run._tid = setTimeout(() => {
+    pushHistory({
+      text,
+      mode,
+      shift: k,
+      preview: out.slice(0, 60),
+      time: new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})
+    });
+  }, 800);
 
-      const idx = alphabet.indexOf(lower);
-      const shift = normalizeShift(k, alphabet.length);
-      const newIdx = (idx + shift) % alphabet.length;
+  persist();
+}
 
-      let newCh = alphabet[newIdx];
+/* ======================= Сохранение настроек ======================= */
+function persist() {
+  settings.mode = $('mode').value;
+  settings.text = $('text').value;
+  settings.shift = $('shift').value;
+  settings.alphabetSel = $('alphabetSel').value;
+  settings.customAlpha = $('customAlpha').value;
+  settings.optYo = $('optYo').checked;
+  settings.optDigits = $('optDigits').checked;
+  settings.optKeepCase = $('optKeepCase').checked;
+  settings.theme = document.documentElement.dataset.theme || 'light';
+  saveSettings(settings);
+}
 
-      // Сохраняем регистр только для настоящих букв
-      if (normalized !== lower) newCh = newCh.toUpperCase();
+/* ======================= Восстановление UI ======================= */
+function restoreUI() {
+  document.documentElement.dataset.theme = settings.theme || 'light';
+  $('themeBtn').textContent = settings.theme === 'dark' ? '☀️' : '🌙';
 
-      result += newCh;
-    }
-    return result;
+  $('mode').value = settings.mode;
+  $('text').value = settings.text || '';
+  $('shift').value = settings.shift;
+  $('shiftSlider').value = Math.min(32, Math.max(0, parseInt(settings.shift, 10) || 0));
+  $('alphabetSel').value = settings.alphabetSel;
+  $('customAlpha').value = settings.customAlpha || '';
+  $('optYo').checked = settings.optYo;
+  $('optDigits').checked = settings.optDigits;
+  $('optKeepCase').checked = settings.optKeepCase;
+
+  $('customAlphaWrap').classList.toggle('hidden', settings.alphabetSel !== 'custom');
+  syncSliderLabel();
+  updateCounter();
+
+  if (settings.text) run();
+  renderHistory();
+}
+
+/* ======================= Слушатели ======================= */
+// Тема
+$('themeBtn').onclick = () => {
+  const cur = document.documentElement.dataset.theme || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  $('themeBtn').textContent = next === 'dark' ? '☀️' : '🌙';
+  persist();
+};
+
+// Живой пересчёт
+['mode','shift','alphabetSel','customAlpha','optYo','optDigits','optKeepCase'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    if (id === 'shift') syncSliderFromInput();
+    if (id === 'alphabetSel') $('customAlphaWrap').classList.toggle('hidden', $('alphabetSel').value !== 'custom');
+    if (id === 'text') updateCounter();
+    run();
+  });
+});
+$('text').addEventListener('input', () => { updateCounter(); run(); });
+
+// Слайдер ↔ поле
+$('shiftSlider').addEventListener('input', () => {
+  $('shift').value = $('shiftSlider').value;
+  syncSliderLabel();
+  run();
+});
+$('shift').addEventListener('input', () => {
+  syncSliderFromInput();
+  run();
+});
+
+// Кнопка «Выполнить»
+$('go').onclick = run;
+
+// Поменять местами
+$('swap').onclick = () => {
+  const out = $('result').textContent;
+  if (!out || out === 'Здесь появится результат' || out.startsWith('⚠️')) {
+    toast('Нет результата для обмена'); return;
   }
+  $('text').value = out;
+  $('mode').value = $('mode').value === 'enc' ? 'dec' : 'enc';
+  updateCounter();
+  run();
+  toast('Текст и режим поменяны');
+};
 
-  function run() {
-    const mode = $('mode').value;
-    const text = $('text').value;
-    const kRaw = parseInt($('shift').value, 10);
-    const k = Number.isFinite(kRaw) ? kRaw : 0;
-
-    if (!text.trim()) {
-      $('result').textContent = '⚠️ Введите текст';
-      return;
-    }
-
-    const shift = mode === 'enc' ? k : -k;
-    $('result').textContent = caesar(text, shift);
+// Копировать
+$('copy').onclick = async () => {
+  const out = $('result').textContent;
+  if (!out || out.startsWith('⚠️')) return;
+  try {
+    await navigator.clipboard.writeText(out);
+    toast('Скопировано в буфер');
+  } catch {
+    toast('Не удалось скопировать');
   }
+};
 
-  $('go').addEventListener('click', run);
+// Скачать .txt
+$('download').onclick = () => {
+  const out = $('result').textContent;
+  if (!out || out.startsWith('⚠️')) { toast('Нет результата'); return; }
+  const blob = new Blob([out], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'caesar-result.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Файл скачан');
+};
 
-  $('copy').addEventListener('click', async () => {
-    const out = $('result').textContent;
-    if (!out || out === 'Здесь появится результат') return;
-    try {
-      await navigator.clipboard.writeText(out);
-      const btn = $('copy');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Скопировано';
-      setTimeout(() => { btn.textContent = orig; }, 1200);
-    } catch {
-      $('result').textContent = '❌ Не удалось скопировать';
-    }
+// Очистить
+$('clear').onclick = () => {
+  $('text').value = '';
+  renderResult('Здесь появится результат');
+  $('diffBox').textContent = '—';
+  $('mapWrap').textContent = '—';
+  updateCounter();
+  $('text').focus();
+  persist();
+};
+
+// Brute-force
+$('bruteBtn').onclick = () => {
+  const text = $('text').value;
+  if (!text.trim()) { toast('Сначала введите текст'); return; }
+  const opts = getOptions();
+  const alphabets = buildAlphabets(opts);
+  if (!alphabets.length) { toast('Алфавит не задан'); return; }
+  const maxLen = Math.max(...alphabets.map(a => a.length));
+
+  const variants = [];
+  for (let k = 0; k < maxLen; k++) {
+    const decoded = caesar(text, -k, opts);
+    variants.push({ k, decoded, score: scoreText(decoded) });
+  }
+  variants.sort((a, b) => b.score - a.score);
+  const best = variants[0];
+
+  const list = $('bruteList');
+  list.innerHTML = '';
+  variants.slice(0, 12).forEach((v, i) => {
+    const row = document.createElement('div');
+    row.className = 'brute-row' + (i === 0 ? ' best' : '');
+    row.innerHTML = `<span class="brute-shift">k=${v.k}</span>
+                     <span class="brute-text">${escapeHtml(v.decoded.slice(0, 120))}</span>
+                     <span class="brute-score">${v.score.toFixed(2)}</span>`;
+    row.title = 'Кликните, чтобы применить этот сдвиг';
+    row.onclick = () => {
+      $('mode').value = 'dec';
+      $('shift').value = v.k;
+      syncSliderFromInput();
+      run();
+      toast(`Применён сдвиг ${v.k}`);
+    };
+    list.appendChild(row);
   });
+  $('bruteHint').textContent = `Лучший вариант выделен. Всего ${variants.length} сдвигов.`;
+};
 
-  $('clear').addEventListener('click', () => {
-    $('text').value = '';
-    $('result').textContent = 'Здесь появится результат';
-    $('text').focus();
-  });
+// История
+$('clearHistory').onclick = () => {
+  saveHistory([]);
+  renderHistory();
+  toast('История очищена');
+};
 
-  // Горячая клавиша Ctrl+Enter
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run();
-  });
-</script>
-</body>
-</html>
+// Drag-and-drop .txt
+const ta = $('text');
+['dragenter','dragover'].forEach(ev => ta.addEventListener(ev, e => {
+  e.preventDefault(); ta.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(ev => ta.addEventListener(ev, e => {
+  e.preventDefault(); ta.classList.remove('drag-over');
+}));
+ta.addEventListener('drop', async e => {
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  if (!/\.(txt|md|csv
