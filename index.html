@@ -1,39 +1,169 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>Цезарь</title></head>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Шифр Цезаря</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    display: flex; justify-content: center;
+    padding: 40px 16px; margin: 0; min-height: 100vh;
+  }
+  .card {
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(30,50,120,.12);
+    padding: 28px; width: 100%; max-width: 560px;
+  }
+  h1 { margin: 0 0 20px; font-size: 22px; text-align: center; color: #1e293b; }
+  label { display: block; margin: 14px 0 6px; font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .04em; }
+  textarea, input, select {
+    width: 100%; padding: 11px 12px;
+    border: 1px solid #cbd5e1; border-radius: 9px;
+    font-size: 15px; font-family: inherit; background: #f8fafc;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea:focus, input:focus, select:focus {
+    outline: none; border-color: #4a6cf7; background: #fff;
+    box-shadow: 0 0 0 3px rgba(74,108,247,.15);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .buttons { display: flex; gap: 10px; margin-top: 18px; }
+  button {
+    flex: 1; padding: 12px; border: none; border-radius: 9px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: transform .08s, background .15s;
+  }
+  button:active { transform: scale(.98); }
+  #go { background: #4a6cf7; color: #fff; }
+  #go:hover { background: #3a56d4; }
+  #copy { background: #e2e8f0; color: #334155; }
+  #copy:hover { background: #cbd5e1; }
+  #clear { background: #fee2e2; color: #b91c1c; }
+  #clear:hover { background: #fecaca; }
+  #result {
+    margin-top: 18px; padding: 14px;
+    background: #f5f7ff; border: 1px dashed #4a6cf7;
+    border-radius: 9px; min-height: 48px;
+    word-break: break-word; font-size: 16px; line-height: 1.5;
+    color: #1e293b; white-space: pre-wrap;
+  }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 6px; text-align: right; }
+</style>
+</head>
 <body>
-  <select id="mode">
-    <option value="enc">Шифровать</option>
-    <option value="dec">Дешифровать</option>
-  </select>
-  <input id="text" placeholder="Текст">
-  <input id="shift" type="number" value="3">
-  <button id="go">OK</button>
-  <p id="result"></p>
+  <div class="card">
+    <h1>🔐 Шифр Цезаря</h1>
+
+    <label for="mode">Режим</label>
+    <select id="mode">
+      <option value="enc">Зашифровать</option>
+      <option value="dec">Расшифровать</option>
+    </select>
+
+    <label for="text">Текст</label>
+    <textarea id="text" placeholder="Введите текст..."></textarea>
+
+    <div class="row">
+      <div>
+        <label for="shift">Сдвиг</label>
+        <input id="shift" type="number" value="3" min="0">
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="go">Выполнить</button>
+      <button id="copy">Копировать</button>
+      <button id="clear">Очистить</button>
+    </div>
+
+    <div id="result">Здесь появится результат</div>
+    <div class="hint">Ctrl+Enter — выполнить</div>
+  </div>
 
 <script>
-  const ru = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'.split('');
-  const en = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  // Русский алфавит БЕЗ «ё» — классический вариант Цезаря.
+  // «ё» приравнивается к «е» при шифровании.
+  const abcRu = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'.split('');
+  const abcEn = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
-  function caesar(t, k) {
-    let r = '';
-    for (const c of t) {
-      const l = c.toLowerCase();
-      const a = ru.includes(l) ? ru : en.includes(l) ? en : null;
-      if (!a) { r += c; continue; }
-      let n = a[(a.indexOf(l) + k) % a.length];
-      if (c === c.toUpperCase() && c !== c.toLowerCase()) n = n.toUpperCase();
-      r += n;
-    }
-    return r;
+  const $ = id => document.getElementById(id);
+
+  function normalizeShift(k, len) {
+    // корректный математический модуль для любых k (в т.ч. отрицательных)
+    return ((k % len) + len) % len;
   }
 
-  document.getElementById('go').onclick = () => {
-    const m = document.getElementById('mode').value;
-    const t = document.getElementById('text').value;
-    const k = parseInt(document.getElementById('shift').value) || 0;
-    document.getElementById('result').textContent = caesar(t, m === 'enc' ? k : -k);
-  };
+  function caesar(text, k) {
+    let result = '';
+    for (const ch of text) {
+      // «ё» / «Ё» → «е» / «Е», чтобы не ломать алфавит
+      const normalized = ch === 'ё' ? 'е' : ch === 'Ё' ? 'Е' : ch;
+      const lower = normalized.toLowerCase();
+
+      let alphabet = null;
+      if (abcRu.includes(lower)) alphabet = abcRu;
+      else if (abcEn.includes(lower)) alphabet = abcEn;
+      else { result += normalized; continue; }
+
+      const idx = alphabet.indexOf(lower);
+      const shift = normalizeShift(k, alphabet.length);
+      const newIdx = (idx + shift) % alphabet.length;
+
+      let newCh = alphabet[newIdx];
+
+      // Сохраняем регистр только для настоящих букв
+      if (normalized !== lower) newCh = newCh.toUpperCase();
+
+      result += newCh;
+    }
+    return result;
+  }
+
+  function run() {
+    const mode = $('mode').value;
+    const text = $('text').value;
+    const kRaw = parseInt($('shift').value, 10);
+    const k = Number.isFinite(kRaw) ? kRaw : 0;
+
+    if (!text.trim()) {
+      $('result').textContent = '⚠️ Введите текст';
+      return;
+    }
+
+    const shift = mode === 'enc' ? k : -k;
+    $('result').textContent = caesar(text, shift);
+  }
+
+  $('go').addEventListener('click', run);
+
+  $('copy').addEventListener('click', async () => {
+    const out = $('result').textContent;
+    if (!out || out === 'Здесь появится результат') return;
+    try {
+      await navigator.clipboard.writeText(out);
+      const btn = $('copy');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Скопировано';
+      setTimeout(() => { btn.textContent = orig; }, 1200);
+    } catch {
+      $('result').textContent = '❌ Не удалось скопировать';
+    }
+  });
+
+  $('clear').addEventListener('click', () => {
+    $('text').value = '';
+    $('result').textContent = 'Здесь появится результат';
+    $('text').focus();
+  });
+
+  // Горячая клавиша Ctrl+Enter
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run();
+  });
 </script>
 </body>
 </html>
