@@ -6,156 +6,94 @@
 <title>Шифр Цезаря — полная версия</title>
 <style>
   :root {
-    --bg1: #eef2ff; --bg2: #f8fafc;
-    --card: #fff; --text: #1e293b; --muted: #64748b;
-    --border: #cbd5e1; --input-bg: #f8fafc;
-    --accent: #4a6cf7; --accent-h: #3a56d4;
-    --danger: #b91c1c; --danger-bg: #fee2e2;
-    --ok: #15803d; --ok-bg: #dcfce7;
-    --result-bg: #f5f7ff; --hint: #94a3b8;
+    --bg1:#eef2ff; --bg2:#f8fafc; --card:#fff; --text:#1e293b; --muted:#64748b;
+    --border:#cbd5e1; --input-bg:#f8fafc; --accent:#4a6cf7; --accent-h:#3a56d4;
+    --danger:#b91c1c; --danger-bg:#fee2e2; --ok:#15803d; --ok-bg:#dcfce7;
+    --result-bg:#f5f7ff; --hint:#94a3b8;
   }
   [data-theme="dark"] {
-    --bg1: #0f172a; --bg2: #1e293b;
-    --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8;
-    --border: #334155; --input-bg: #0f172a;
-    --accent: #6366f1; --accent-h: #818cf8;
-    --danger: #fca5a5; --danger-bg: #451a1a;
-    --ok: #86efac; --ok-bg: #14532d;
-    --result-bg: #0f172a; --hint: #64748b;
+    --bg1:#0f172a; --bg2:#1e293b; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+    --border:#334155; --input-bg:#0f172a; --accent:#6366f1; --accent-h:#818cf8;
+    --danger:#fca5a5; --danger-bg:#451a1a; --ok:#86efac; --ok-bg:#14532d;
+    --result-bg:#0f172a; --hint:#64748b;
   }
-  * { box-sizing: border-box; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, var(--bg1), var(--bg2));
-    color: var(--text);
-    display: flex; justify-content: center;
-    padding: 32px 16px; margin: 0; min-height: 100vh;
-    transition: background .3s, color .3s;
+  *{box-sizing:border-box}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--text);
+    display:flex;justify-content:center;padding:32px 16px;margin:0;min-height:100vh;
+    transition:background .3s,color .3s;
   }
-  .card {
-    background: var(--card); border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(30,50,120,.12);
-    padding: 24px; width: 100%; max-width: 640px;
-    transition: background .3s;
-  }
-  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  h1 { margin: 0; font-size: 21px; }
-  .theme-btn {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text); border-radius: 8px; padding: 6px 10px;
-    cursor: pointer; font-size: 16px;
-  }
-  label { display: block; margin: 14px 0 6px; font-size: 12px; font-weight: 600;
-          color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-  textarea, input, select {
-    width: 100%; padding: 10px 12px;
-    border: 1px solid var(--border); border-radius: 9px;
-    font-size: 15px; font-family: inherit;
-    background: var(--input-bg); color: var(--text);
-    transition: border-color .15s, box-shadow .15s;
-  }
-  textarea:focus, input:focus, select:focus {
-    outline: none; border-color: var(--accent); background: var(--card);
-    box-shadow: 0 0 0 3px rgba(74,108,247,.15);
-  }
-  textarea { resize: vertical; min-height: 90px; }
-  textarea.drag-over { border-color: var(--accent); background: var(--result-bg); }
-  .row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 140px; }
-  .buttons { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
-  button {
-    flex: 1; min-width: 110px; padding: 11px; border: none; border-radius: 9px;
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: transform .08s, background .15s;
-  }
-  button:active { transform: scale(.98); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-h); }
-  .btn-sec { background: var(--border); color: var(--text); }
-  .btn-sec:hover { filter: brightness(.95); }
-  .btn-danger { background: var(--danger-bg); color: var(--danger); }
-  #result {
-    margin-top: 16px; padding: 14px;
-    background: var(--result-bg); border: 1px dashed var(--accent);
-    border-radius: 9px; min-height: 48px;
-    word-break: break-word; font-size: 16px; line-height: 1.5;
-    white-space: pre-wrap;
-  }
-  .hint { font-size: 12px; color: var(--hint); margin-top: 6px; text-align: right; }
-  .counter { font-size: 12px; color: var(--hint); margin-top: 4px; text-align: right; }
-
-  /* Слайдер */
-  .slider-wrap { display: flex; gap: 10px; align-items: center; }
-  .slider-wrap input[type=range] { flex: 1; }
-  .slider-val { min-width: 42px; text-align: center; font-weight: 700; color: var(--accent); }
-
-  /* Чекбоксы */
-  .checks { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
-  .checks label {
-    display: inline-flex; align-items: center; gap: 6px;
-    margin: 0; font-size: 13px; color: var(--text);
-    text-transform: none; letter-spacing: 0; font-weight: 500; cursor: pointer;
-  }
-  .checks input[type=checkbox] { width: auto; }
-
-  /* Раскрывающиеся блоки */
-  details {
-    margin-top: 14px; border: 1px solid var(--border);
-    border-radius: 9px; padding: 10px 14px; background: var(--input-bg);
-  }
-  details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
-  details[open] summary { margin-bottom: 10px; }
-  details .content { font-size: 14px; color: var(--text); line-height: 1.6; }
-
-  /* Таблица замены */
-  .table-wrap { overflow-x: auto; margin-top: 8px; }
-  table.map { border-collapse: collapse; font-size: 13px; }
-  table.map td, table.map th {
-    border: 1px solid var(--border); padding: 4px 8px; text-align: center;
-    font-family: monospace;
-  }
-  table.map th { background: var(--result-bg); font-weight: 700; }
-
-  /* Подсветка изменённых букв */
-  .diff-box { margin-top: 10px; padding: 10px; background: var(--input-bg);
-              border-radius: 8px; font-family: monospace; font-size: 14px;
-              word-break: break-word; line-height: 1.6; }
-  .diff-arrow { color: var(--muted); padding: 0 2px; }
-  .diff-new { color: var(--accent); font-weight: 700; }
-
-  /* Brute-force */
-  .brute { margin-top: 10px; display: grid; gap: 6px; }
-  .brute-row {
-    padding: 6px 10px; border-radius: 6px; background: var(--input-bg);
-    font-family: monospace; font-size: 13px; cursor: pointer;
-    display: flex; gap: 10px; align-items: center;
-  }
-  .brute-row:hover { background: var(--result-bg); }
-  .brute-row.best { border: 2px solid var(--ok); background: var(--ok-bg); }
-  .brute-shift { font-weight: 700; color: var(--accent); min-width: 42px; }
-  .brute-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .brute-score { font-size: 11px; color: var(--muted); }
-
-  /* История */
-  .history { margin-top: 8px; display: grid; gap: 6px; }
-  .history-item {
-    padding: 8px 10px; border-radius: 6px; background: var(--input-bg);
-    font-size: 13px; cursor: pointer; display: flex; gap: 10px;
-    justify-content: space-between;
-  }
-  .history-item:hover { background: var(--result-bg); }
-  .history-item .meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 8px;
-    font-size: 14px; opacity: 0; pointer-events: none;
-    transition: opacity .25s, transform .25s; z-index: 1000;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .hidden { display: none !important; }
+  .card{background:var(--card);border-radius:14px;box-shadow:0 8px 30px rgba(30,50,120,.12);
+        padding:24px;width:100%;max-width:640px;transition:background .3s}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  h1{margin:0;font-size:21px}
+  .theme-btn{background:transparent;border:1px solid var(--border);color:var(--text);
+             border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
+  label{display:block;margin:14px 0 6px;font-size:12px;font-weight:600;
+        color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  textarea,input,select{width:100%;padding:10px 12px;border:1px solid var(--border);
+    border-radius:9px;font-size:15px;font-family:inherit;background:var(--input-bg);
+    color:var(--text);transition:border-color .15s,box-shadow .15s}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--accent);
+    background:var(--card);box-shadow:0 0 0 3px rgba(74,108,247,.15)}
+  textarea{resize:vertical;min-height:90px}
+  textarea.drag-over{border-color:var(--accent);background:var(--result-bg)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:140px}
+  .buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  button{flex:1;min-width:110px;padding:11px;border:none;border-radius:9px;
+         font-size:14px;font-weight:600;cursor:pointer;transition:transform .08s,background .15s}
+  button:active{transform:scale(.98)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-h)}
+  .btn-sec{background:var(--border);color:var(--text)}
+  .btn-sec:hover{filter:brightness(.95)}
+  .btn-danger{background:var(--danger-bg);color:var(--danger)}
+  #result{margin-top:16px;padding:14px;background:var(--result-bg);
+    border:1px dashed var(--accent);border-radius:9px;min-height:48px;
+    word-break:break-word;font-size:16px;line-height:1.5;white-space:pre-wrap}
+  .hint{font-size:12px;color:var(--hint);margin-top:6px;text-align:right}
+  .counter{font-size:12px;color:var(--hint);margin-top:4px;text-align:right}
+  .slider-wrap{display:flex;gap:10px;align-items:center}
+  .slider-wrap input[type=range]{flex:1}
+  .slider-val{min-width:42px;text-align:center;font-weight:700;color:var(--accent)}
+  .checks{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}
+  .checks label{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:13px;
+    color:var(--text);text-transform:none;letter-spacing:0;font-weight:500;cursor:pointer}
+  .checks input[type=checkbox]{width:auto}
+  details{margin-top:14px;border:1px solid var(--border);border-radius:9px;
+          padding:10px 14px;background:var(--input-bg)}
+  details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--accent)}
+  details[open] summary{margin-bottom:10px}
+  details .content{font-size:14px;color:var(--text);line-height:1.6}
+  .table-wrap{overflow-x:auto;margin-top:8px}
+  table.map{border-collapse:collapse;font-size:13px}
+  table.map td,table.map th{border:1px solid var(--border);padding:4px 8px;
+    text-align:center;font-family:monospace}
+  table.map th{background:var(--result-bg);font-weight:700}
+  .diff-box{margin-top:10px;padding:10px;background:var(--input-bg);border-radius:8px;
+    font-family:monospace;font-size:14px;word-break:break-word;line-height:1.6}
+  .diff-arrow{color:var(--muted);padding:0 2px}
+  .diff-new{color:var(--accent);font-weight:700}
+  .brute{margin-top:10px;display:grid;gap:6px}
+  .brute-row{padding:6px 10px;border-radius:6px;background:var(--input-bg);
+    font-family:monospace;font-size:13px;cursor:pointer;display:flex;gap:10px;align-items:center}
+  .brute-row:hover{background:var(--result-bg)}
+  .brute-row.best{border:2px solid var(--ok);background:var(--ok-bg)}
+  .brute-shift{font-weight:700;color:var(--accent);min-width:42px}
+  .brute-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brute-score{font-size:11px;color:var(--muted)}
+  .history{margin-top:8px;display:grid;gap:6px}
+  .history-item{padding:8px 10px;border-radius:6px;background:var(--input-bg);
+    font-size:13px;cursor:pointer;display:flex;gap:10px;justify-content:space-between}
+  .history-item:hover{background:var(--result-bg)}
+  .history-item .meta{color:var(--muted);font-size:11px;white-space:nowrap}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#1e293b;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:1000}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -165,32 +103,26 @@
     <button class="theme-btn" id="themeBtn" title="Сменить тему">🌙</button>
   </header>
 
-  <!-- Справка -->
-  <details id="helpBlock">
+  <details>
     <summary>Что такое шифр Цезаря?</summary>
     <div class="content">
-      Шифр Цезаря — это шифр сдвига: каждая буква заменяется на букву,
-      стоящую через <b>k</b> позиций в алфавите. Формула:
-      <code>(индекс + сдвиг) mod длина_алфавита</code>.<br>
-      Например, при сдвиге 3: <code>а → г, б → д, в → е, …, я → а</code>.<br>
-      Шифр легко взломать перебором (всего 33 варианта для русского) или
-      частотным анализом — поэтому он учебный, а не для реальной защиты.
+      Шифр сдвига: каждая буква заменяется на букву через <b>k</b> позиций.
+      Формула: <code>(индекс + сдвиг) mod длина_алфавита</code>.<br>
+      При сдвиге 3: <code>а → г, б → д, …, я → а</code>. Легко взламывается перебором
+      или частотным анализом — это учебный шифр, не для реальной защиты.
     </div>
   </details>
 
-  <!-- Режим -->
   <label for="mode">Режим</label>
   <select id="mode">
     <option value="enc">Зашифровать</option>
     <option value="dec">Расшифровать</option>
   </select>
 
-  <!-- Текст -->
   <label for="text">Текст <span style="color:var(--hint);font-weight:400">(можно перетащить .txt)</span></label>
   <textarea id="text" placeholder="Введите текст..."></textarea>
   <div class="counter" id="counter">0 символов · 0 слов</div>
 
-  <!-- Сдвиг + слайдер -->
   <div class="row">
     <div>
       <label for="shift">Сдвиг</label>
@@ -205,7 +137,6 @@
     </div>
   </div>
 
-  <!-- Настройки алфавита -->
   <details>
     <summary>Настройки алфавита</summary>
     <div class="content">
@@ -228,51 +159,42 @@
     </div>
   </details>
 
-  <!-- Кнопки -->
   <div class="buttons">
     <button class="btn-primary" id="go">Выполнить</button>
-    <button class="btn-sec" id="swap" title="Поменять местами текст и результат">↔ Поменять</button>
+    <button class="btn-sec" id="swap">↔ Поменять</button>
     <button class="btn-sec" id="copy">Копировать</button>
     <button class="btn-sec" id="download">Скачать .txt</button>
     <button class="btn-danger" id="clear">Очистить</button>
   </div>
   <div class="hint">Ctrl+Enter — выполнить · результат пересчитывается автоматически</div>
 
-  <!-- Результат -->
   <div id="result">Здесь появится результат</div>
 
-  <!-- Подсветка изменённых букв -->
   <details id="diffBlock">
     <summary>Показать изменения (было → стало)</summary>
-    <div class="diff-box" id="diffBox"></div>
+    <div class="diff-box" id="diffBox">—</div>
   </details>
 
-  <!-- Таблица замены -->
   <details id="mapBlock">
     <summary>Таблица замены</summary>
-    <div class="table-wrap" id="mapWrap"></div>
+    <div class="table-wrap" id="mapWrap">—</div>
   </details>
 
-  <!-- Brute-force -->
-  <details id="bruteBlock">
+  <details>
     <summary>Взломать (перебор всех сдвигов)</summary>
     <div class="content">
-      <button class="btn-primary" id="bruteBtn" style="width:100%;margin-top:6px">
-        🔓 Взломать текущий текст
-      </button>
+      <button class="btn-primary" id="bruteBtn" style="width:100%;margin-top:6px">🔓 Взломать текущий текст</button>
       <div class="brute" id="bruteList"></div>
       <div class="hint" id="bruteHint"></div>
     </div>
   </details>
 
-  <!-- История -->
-  <details id="historyBlock">
+  <details>
     <summary>История операций</summary>
     <div class="history" id="historyList"></div>
     <button class="btn-sec" id="clearHistory" style="width:100%;margin-top:8px">Очистить историю</button>
   </details>
 
-  <!-- Экспорт/импорт настроек -->
   <details>
     <summary>Экспорт / импорт настроек</summary>
     <div class="content">
@@ -290,7 +212,7 @@
 <script>
 "use strict";
 
-/* ======================= Константы и утилиты ======================= */
+/* ===== Константы ===== */
 const ABC_RU_BASE = 'абвгдежзийклмнопрстуфхцчшщъыьэюя';
 const ABC_RU_YO   = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
 const ABC_EN      = 'abcdefghijklmnopqrstuvwxyz';
@@ -308,7 +230,7 @@ function toast(msg, ms = 1600) {
   t._tid = setTimeout(() => t.classList.remove('show'), ms);
 }
 
-/* ======================= Настройки ======================= */
+/* ===== Настройки ===== */
 function loadSettings() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
   catch { return {}; }
@@ -316,35 +238,23 @@ function loadSettings() {
 function saveSettings(s) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
 }
-
 const settings = {
-  theme: 'light',
-  mode: 'enc',
-  text: '',
-  shift: 3,
-  alphabetSel: 'auto',
-  customAlpha: '',
-  optYo: false,
-  optDigits: false,
-  optKeepCase: true,
+  theme: 'light', mode: 'enc', text: '', shift: 3,
+  alphabetSel: 'auto', customAlpha: '',
+  optYo: false, optDigits: false, optKeepCase: true,
   ...loadSettings()
 };
 
-/* ======================= Построение алфавитов ======================= */
+/* ===== Алфавиты ===== */
 function buildAlphabets(opts) {
   const list = [];
   const sel = opts.alphabetSel;
-
-  if (sel === 'auto' || sel === 'ru') {
+  if (sel === 'auto' || sel === 'ru')
     list.push((opts.optYo ? ABC_RU_YO : ABC_RU_BASE).split(''));
-  }
-  if (sel === 'auto' || sel === 'en') {
+  if (sel === 'auto' || sel === 'en')
     list.push(ABC_EN.split(''));
-  }
   if (sel === 'custom' && opts.customAlpha.trim()) {
-    // уникальные символы в порядке ввода
-    const seen = new Set();
-    const chars = [];
+    const seen = new Set(); const chars = [];
     for (const ch of opts.customAlpha) {
       if (!seen.has(ch) && !/\s/.test(ch)) { seen.add(ch); chars.push(ch); }
     }
@@ -353,49 +263,38 @@ function buildAlphabets(opts) {
   return list;
 }
 
-/* ======================= Основной алгоритм ======================= */
+/* ===== Шифр ===== */
 function caesar(text, k, opts) {
   const alphabets = buildAlphabets(opts);
   if (!alphabets.length) return text;
-
   let result = '';
   for (const rawCh of text) {
-    // «ё» → «е», если опция выключена (в классическом алфавите)
     let ch = rawCh;
     if (!opts.optYo) {
       if (ch === 'ё') ch = 'е';
       else if (ch === 'Ё') ch = 'Е';
     }
-
     const lower = ch.toLowerCase();
     let alphabet = null;
     for (const a of alphabets) {
       if (a.includes(lower)) { alphabet = a; break; }
     }
-
-    // цифры
     if (!alphabet && opts.optDigits && /\d/.test(ch)) {
       alphabet = ABC_DIGITS.split('');
     }
-
     if (!alphabet) { result += ch; continue; }
-
     const idx = alphabet.indexOf(lower);
-    const len = alphabet.length;
-    const newIdx = mod(idx + k, len);
+    const newIdx = mod(idx + k, alphabet.length);
     let newCh = alphabet[newIdx];
-
     if (opts.optKeepCase && ch !== lower) newCh = newCh.toUpperCase();
     result += newCh;
   }
   return result;
 }
 
-/* ======================= Подсчёт статистики для brute-force ======================= */
-// Частоты букв русского и английского (приближённо, в сумме 1)
-const FREQ_RU = { о:.1097,е:.0845,а:.0801,и:.0735,н:.067,т:.0626,с:.0547,р:.0473,в:.0454,л:.044,к:.0349,м:.0321,д:.0298,п:.0281,у:.0262,я:.0201,ы:.019,ь:.0174,г:.017,з:.0165,б:.0159,ч:.0144,й:.0121,х:.0097,ж:.0094,ш:.0073,ю:.0064,ц:.0048,щ:.0036,э:.0032,ф:.0026,ъ:.0004,ё:.0004 };
-const FREQ_EN = { e:.12702,t:.09056,a:.08167,o:.07507,i:.06966,n:.06749,s:.06327,h:.06094,r:.05987,d:.04253,l:.04025,c:.02782,u:.02758,m:.02406,w:.0236,f:.02228,g:.02015,y:.01974,p:.01929,b:.01492,v:.00978,k:.00772,j:.00153,x:.0015,q:.00095,z:.00074 };
-
+/* ===== Частоты для brute-force ===== */
+const FREQ_RU = {о:.1097,е:.0845,а:.0801,и:.0735,н:.067,т:.0626,с:.0547,р:.0473,в:.0454,л:.044,к:.0349,м:.0321,д:.0298,п:.0281,у:.0262,я:.0201,ы:.019,ь:.0174,г:.017,з:.0165,б:.0159,ч:.0144,й:.0121,х:.0097,ж:.0094,ш:.0073,ю:.0064,ц:.0048,щ:.0036,э:.0032,ф:.0026,ъ:.0004,ё:.0004};
+const FREQ_EN = {e:.12702,t:.09056,a:.08167,o:.07507,i:.06966,n:.06749,s:.06327,h:.06094,r:.05987,d:.04253,l:.04025,c:.02782,u:.02758,m:.02406,w:.0236,f:.02228,g:.02015,y:.01974,p:.01929,b:.01492,v:.00978,k:.00772,j:.00153,x:.0015,q:.00095,z:.00074};
 function scoreText(text) {
   let score = 0, letters = 0;
   const lower = text.toLowerCase();
@@ -406,62 +305,65 @@ function scoreText(text) {
   return letters ? score / letters : -Infinity;
 }
 
-/* ======================= UI: рендер ======================= */
-function renderResult(out) {
-  $('result').textContent = out;
+/* ===== Отрисовка ===== */
+function renderResult(out) { $('result').textContent = out; }
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
-function renderDiff(original, transformed, opts) {
+function renderDiff(original, transformed) {
   const box = $('diffBox');
   if (!original || !transformed) { box.textContent = '—'; return; }
   let html = '';
   const n = Math.min(original.length, transformed.length);
   for (let i = 0; i < n; i++) {
     const a = original[i], b = transformed[i];
-    const aLower = a.toLowerCase(), bLower = b.toLowerCase();
-    const isLetter = /[a-zа-яё0-9]/i.test(aLower);
-    if (isLetter && aLower !== bLower) {
+    const aL = a.toLowerCase(), bL = b.toLowerCase();
+    const isLetter = /[a-zа-яё0-9]/i.test(aL);
+    if (isLetter && aL !== bL)
       html += `<span title="${a} → ${b}">${escapeHtml(a)}<span class="diff-arrow">→</span><span class="diff-new">${escapeHtml(b)}</span></span>`;
-    } else {
+    else
       html += escapeHtml(a);
-    }
   }
-  if (transformed.length > original.length) {
+  if (transformed.length > original.length)
     html += escapeHtml(transformed.slice(original.length));
-  }
   box.innerHTML = html;
 }
-
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
 function renderMap(opts, k) {
   const wrap = $('mapWrap');
   const alphabets = buildAlphabets(opts);
   if (!alphabets.length) { wrap.textContent = 'Алфавит не задан'; return; }
-
   let html = '';
   for (const alphabet of alphabets) {
     const len = alphabet.length;
     html += '<table class="map"><tr><th>Исх.</th>';
     for (const ch of alphabet) html += `<th>${escapeHtml(ch)}</th>`;
     html += '</tr><tr><th>Рез.</th>';
-    for (let i = 0; i < len; i++) {
-      let target = alphabet[mod(i + k, len)];
-      html += `<td>${escapeHtml(target)}</td>`;
-    }
+    for (let i = 0; i < len; i++)
+      html += `<td>${escapeHtml(alphabet[mod(i + k, len)])}</td>`;
     html += '</tr></table><br>';
   }
   wrap.innerHTML = html;
 }
 
+/* ===== История ===== */
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY + '_hist') || '[]'); }
+  catch { return []; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem(LS_KEY + '_hist', JSON.stringify(h)); } catch {}
+}
+function pushHistory(item) {
+  const h = loadHistory();
+  if (h[0] && h[0].text === item.text && h[0].mode === item.mode && h[0].shift === item.shift) return;
+  h.unshift(item); saveHistory(h.slice(0, 10)); renderHistory();
+}
 function renderHistory() {
   const list = $('historyList');
   const history = loadHistory();
   if (!history.length) { list.innerHTML = '<div class="hint" style="text-align:center">Пока пусто</div>'; return; }
   list.innerHTML = '';
-  history.forEach((item, i) => {
+  history.forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `<span>${escapeHtml(item.preview)}</span>
@@ -472,50 +374,27 @@ function renderHistory() {
       $('mode').value = item.mode;
       $('shift').value = item.shift;
       $('shiftSlider').value = item.shift;
-      syncSliderLabel();
-      updateCounter();
-      run();
+      syncSliderLabel(); updateCounter(); run();
     };
     list.appendChild(div);
   });
 }
 
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY + '_hist') || '[]'); }
-  catch { return []; }
-}
-function saveHistory(h) {
-  try { localStorage.setItem(LS_KEY + '_hist', JSON.stringify(h)); } catch {}
-}
-function pushHistory(item) {
-  const h = loadHistory();
-  // не дублируем подряд одинаковое
-  if (h[0] && h[0].text === item.text && h[0].mode === item.mode && h[0].shift === item.shift) return;
-  h.unshift(item);
-  saveHistory(h.slice(0, 10));
-  renderHistory();
-}
-
-/* ======================= UI: счётчик ======================= */
+/* ===== UI-счётчик и слайдер ===== */
 function updateCounter() {
   const t = $('text').value;
   const chars = t.length;
   const words = t.trim() ? t.trim().split(/\s+/).length : 0;
   $('counter').textContent = `${chars} символов · ${words} слов`;
 }
-
-/* ======================= UI: слайдер ======================= */
-function syncSliderLabel() {
-  const v = $('shift').value || '0';
-  $('sliderVal').textContent = v;
-}
+function syncSliderLabel() { $('sliderVal').textContent = $('shift').value || '0'; }
 function syncSliderFromInput() {
   const v = parseInt($('shift').value, 10) || 0;
   $('shiftSlider').value = Math.min(32, Math.max(0, v));
   syncSliderLabel();
 }
 
-/* ======================= Основной запуск ======================= */
+/* ===== Главный запуск ===== */
 function getOptions() {
   return {
     alphabetSel: $('alphabetSel').value,
@@ -525,7 +404,6 @@ function getOptions() {
     optKeepCase: $('optKeepCase').checked
   };
 }
-
 function run() {
   const mode = $('mode').value;
   const text = $('text').value;
@@ -540,20 +418,16 @@ function run() {
     persist();
     return;
   }
-
   const shift = mode === 'enc' ? k : -k;
   const out = caesar(text, shift, opts);
   renderResult(out);
-  renderDiff(text, out, opts);
+  renderDiff(text, out);
   renderMap(opts, mod(shift, 33));
 
-  // Автоистория (с небольшой задержкой, чтобы не дёргать при каждом нажатии)
   clearTimeout(run._tid);
   run._tid = setTimeout(() => {
     pushHistory({
-      text,
-      mode,
-      shift: k,
+      text, mode, shift: k,
       preview: out.slice(0, 60),
       time: new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})
     });
@@ -562,7 +436,7 @@ function run() {
   persist();
 }
 
-/* ======================= Сохранение настроек ======================= */
+/* ===== Сохранение ===== */
 function persist() {
   settings.mode = $('mode').value;
   settings.text = $('text').value;
@@ -576,7 +450,7 @@ function persist() {
   saveSettings(settings);
 }
 
-/* ======================= Восстановление UI ======================= */
+/* ===== Восстановление ===== */
 function restoreUI() {
   document.documentElement.dataset.theme = settings.theme || 'light';
   $('themeBtn').textContent = settings.theme === 'dark' ? '☀️' : '🌙';
@@ -594,13 +468,11 @@ function restoreUI() {
   $('customAlphaWrap').classList.toggle('hidden', settings.alphabetSel !== 'custom');
   syncSliderLabel();
   updateCounter();
-
   if (settings.text) run();
   renderHistory();
 }
 
-/* ======================= Слушатели ======================= */
-// Тема
+/* ===== Слушатели ===== */
 $('themeBtn').onclick = () => {
   const cur = document.documentElement.dataset.theme || 'light';
   const next = cur === 'dark' ? 'light' : 'dark';
@@ -609,32 +481,23 @@ $('themeBtn').onclick = () => {
   persist();
 };
 
-// Живой пересчёт
-['mode','shift','alphabetSel','customAlpha','optYo','optDigits','optKeepCase'].forEach(id => {
+['mode','alphabetSel','customAlpha','optYo','optDigits','optKeepCase'].forEach(id => {
   $(id).addEventListener('input', () => {
-    if (id === 'shift') syncSliderFromInput();
-    if (id === 'alphabetSel') $('customAlphaWrap').classList.toggle('hidden', $('alphabetSel').value !== 'custom');
-    if (id === 'text') updateCounter();
+    if (id === 'alphabetSel')
+      $('customAlphaWrap').classList.toggle('hidden', $('alphabetSel').value !== 'custom');
     run();
   });
 });
 $('text').addEventListener('input', () => { updateCounter(); run(); });
 
-// Слайдер ↔ поле
 $('shiftSlider').addEventListener('input', () => {
   $('shift').value = $('shiftSlider').value;
-  syncSliderLabel();
-  run();
+  syncSliderLabel(); run();
 });
-$('shift').addEventListener('input', () => {
-  syncSliderFromInput();
-  run();
-});
+$('shift').addEventListener('input', () => { syncSliderFromInput(); run(); });
 
-// Кнопка «Выполнить»
 $('go').onclick = run;
 
-// Поменять местами
 $('swap').onclick = () => {
   const out = $('result').textContent;
   if (!out || out === 'Здесь появится результат' || out.startsWith('⚠️')) {
@@ -642,24 +505,17 @@ $('swap').onclick = () => {
   }
   $('text').value = out;
   $('mode').value = $('mode').value === 'enc' ? 'dec' : 'enc';
-  updateCounter();
-  run();
+  updateCounter(); run();
   toast('Текст и режим поменяны');
 };
 
-// Копировать
 $('copy').onclick = async () => {
   const out = $('result').textContent;
   if (!out || out.startsWith('⚠️')) return;
-  try {
-    await navigator.clipboard.writeText(out);
-    toast('Скопировано в буфер');
-  } catch {
-    toast('Не удалось скопировать');
-  }
+  try { await navigator.clipboard.writeText(out); toast('Скопировано в буфер'); }
+  catch { toast('Не удалось скопировать'); }
 };
 
-// Скачать .txt
 $('download').onclick = () => {
   const out = $('result').textContent;
   if (!out || out.startsWith('⚠️')) { toast('Нет результата'); return; }
@@ -672,7 +528,6 @@ $('download').onclick = () => {
   toast('Файл скачан');
 };
 
-// Очистить
 $('clear').onclick = () => {
   $('text').value = '';
   renderResult('Здесь появится результат');
@@ -683,7 +538,6 @@ $('clear').onclick = () => {
   persist();
 };
 
-// Brute-force
 $('bruteBtn').onclick = () => {
   const text = $('text').value;
   if (!text.trim()) { toast('Сначала введите текст'); return; }
@@ -693,12 +547,10 @@ $('bruteBtn').onclick = () => {
   const maxLen = Math.max(...alphabets.map(a => a.length));
 
   const variants = [];
-  for (let k = 0; k < maxLen; k++) {
-    const decoded = caesar(text, -k, opts);
-    variants.push({ k, decoded, score: scoreText(decoded) });
-  }
+  for (let k = 0; k < maxLen; k++)
+    variants.push({ k, decoded: caesar(text, -k, opts) });
+  variants.forEach(v => v.score = scoreText(v.decoded));
   variants.sort((a, b) => b.score - a.score);
-  const best = variants[0];
 
   const list = $('bruteList');
   list.innerHTML = '';
@@ -712,8 +564,7 @@ $('bruteBtn').onclick = () => {
     row.onclick = () => {
       $('mode').value = 'dec';
       $('shift').value = v.k;
-      syncSliderFromInput();
-      run();
+      syncSliderFromInput(); run();
       toast(`Применён сдвиг ${v.k}`);
     };
     list.appendChild(row);
@@ -721,14 +572,11 @@ $('bruteBtn').onclick = () => {
   $('bruteHint').textContent = `Лучший вариант выделен. Всего ${variants.length} сдвигов.`;
 };
 
-// История
 $('clearHistory').onclick = () => {
-  saveHistory([]);
-  renderHistory();
-  toast('История очищена');
+  saveHistory([]); renderHistory(); toast('История очищена');
 };
 
-// Drag-and-drop .txt
+/* ===== Drag-and-drop .txt ===== */
 const ta = $('text');
 ['dragenter','dragover'].forEach(ev => ta.addEventListener(ev, e => {
   e.preventDefault(); ta.classList.add('drag-over');
@@ -739,4 +587,53 @@ const ta = $('text');
 ta.addEventListener('drop', async e => {
   const f = e.dataTransfer.files[0];
   if (!f) return;
-  if (!/\.(txt|md|csv
+  if (!/\.(txt|md|csv)$/i.test(f.name)) { toast('Только .txt/.md/.csv'); return; }
+  $('text').value = await f.text();
+  updateCounter(); run();
+  toast('Файл загружен');
+});
+
+/* ===== Ctrl+Enter ===== */
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run();
+});
+
+/* ===== Экспорт/импорт настроек ===== */
+$('exportSettings').onclick = () => {
+  const s = {
+    mode: $('mode').value,
+    shift: $('shift').value,
+    alphabetSel: $('alphabetSel').value,
+    customAlpha: $('customAlpha').value,
+    optYo: $('optYo').checked,
+    optDigits: $('optDigits').checked,
+    optKeepCase: $('optKeepCase').checked,
+    theme: document.documentElement.dataset.theme || 'light'
+  };
+  $('settingsJson').value = JSON.stringify(s, null, 2);
+  toast('Настройки выгружены');
+};
+$('importSettings').onclick = () => {
+  try {
+    const s = JSON.parse($('settingsJson').value);
+    if (s.mode) $('mode').value = s.mode;
+    if (s.shift != null) { $('shift').value = s.shift; syncSliderFromInput(); }
+    if (s.alphabetSel) { $('alphabetSel').value = s.alphabetSel;
+      $('customAlphaWrap').classList.toggle('hidden', s.alphabetSel !== 'custom'); }
+    if (s.customAlpha != null) $('customAlpha').value = s.customAlpha;
+    if (s.optYo != null) $('optYo').checked = s.optYo;
+    if (s.optDigits != null) $('optDigits').checked = s.optDigits;
+    if (s.optKeepCase != null) $('optKeepCase').checked = s.optKeepCase;
+    if (s.theme) {
+      document.documentElement.dataset.theme = s.theme;
+      $('themeBtn').textContent = s.theme === 'dark' ? '☀️' : '🌙';
+    }
+    run(); toast('Настройки применены');
+  } catch { toast('Неверный JSON'); }
+};
+
+/* ===== Старт ===== */
+restoreUI();
+</script>
+</body>
+</html>
